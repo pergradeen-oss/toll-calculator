@@ -31,6 +31,7 @@ public sealed class SwedishHolidayCalendar : IHolidayCalendar
         yield return new DateOnly(year, 1, 6);
         yield return easter.AddDays(-3);
         yield return easter.AddDays(-2);
+        yield return easter;
         yield return easter.AddDays(1);
         yield return new DateOnly(year, 5, 1);
         yield return easter.AddDays(39);
