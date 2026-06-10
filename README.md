@@ -24,12 +24,14 @@ Se [C#/README.md](C#/README.md) för:
 
 | Område | Status |
 |--------|--------|
-| Korrekt timdebitering | Fixad |
-| Komplett tariff | Fixad |
-| Helgdagslogik | Fixad |
-| Enhetstester (61 st) | Inkluderade |
+| Korrekt rullande timdebitering | Fixad |
+| Halvöppna tariffintervall | Implementerad |
+| Kalenderdags-tak 60 SEK | Implementerad |
+| Dynamiska helgdagar (alla år) | Implementerad |
+| Sekundtrunkering i tariff | Implementerad |
+| Enhetstester (70 st) | Inkluderade |
 | Testbar arkitektur | Policies + DI |
 
 ## Bonus
 
-Gifen i det ursprungliga uppdraget kommer från *Lost in Space* — ”Danger, Will Robinson!”
+Gifen i det ursprungliga uppdraget kommer från filmen *Hackers* (1995).
