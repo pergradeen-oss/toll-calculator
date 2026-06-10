@@ -43,8 +43,8 @@ C#/
 
 | Regel                                     | Implementation                                   |
 | ----------------------------------------- | ------------------------------------------------ |
-| Avgift 8–18 SEK beroende på tid           | `TollFeePolicy` med deklarativ tariff            |
-| Max 60 SEK per kalenderdag                | Separat tak per datum, nollställs vid ny dag     |
+| Avgift 8–18 SEK beroende på tid           | `TollFeePolicy` med halvöppna intervall          |
+| Max 60 SEK per kalenderdag                | Separat tak per datum, nollställs vid ny dag    |
 | En avgift per rullande 60-minutersfönster | Gruppering med tidsdiff och omstart av intervall |
 | Tider avrundas till hela sekunder         | Millisekunder trunkeras i `TollFeePolicy`        |
 | Högsta avgift inom samma fönster          | `Math.Max` per intervall                         |
@@ -107,10 +107,10 @@ Policies kan injiceras för testning och framtida regeländringar utan att ändr
 
 Testsviten täcker:
 
-- Alla tariffzoner inklusive tidigare buggiga intervall (t.ex. 09:00–09:29)
+- Alla tariffzoner med DataRow-liknande testfall per zongräns
 - Timfönster och högsta avgift inom intervall
-- Dagstak på 60 SEK per kalenderdag (även vid passager över flera dagar)
-- Avrundning av tider till hela sekunder i tariffen
+- Dagstak på 60 SEK per kalenderdag
+- Halvöppna tariffintervall och avrundning till hela sekunder
 - Avgiftsfria fordon och helgdagar
 - Att hela juli inte är avgiftsfritt (tidigare bugg)
 - Tom array, null-validering och osorterade passager
