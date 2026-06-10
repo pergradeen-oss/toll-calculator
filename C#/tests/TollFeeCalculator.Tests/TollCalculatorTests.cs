@@ -125,6 +125,41 @@ public class TollCalculatorTests
     }
 
     [Fact]
+    public void GetTollFee_AppliesDailyCap_PerCalendarDay()
+    {
+        var vehicle = new Car();
+        var dayOnePasses = new[]
+        {
+            new DateTime(2013, 3, 18, 7, 0, 0),
+            new DateTime(2013, 3, 18, 8, 1, 0),
+            new DateTime(2013, 3, 18, 9, 2, 0),
+            new DateTime(2013, 3, 18, 10, 3, 0),
+            new DateTime(2013, 3, 18, 11, 4, 0),
+            new DateTime(2013, 3, 18, 12, 5, 0),
+        };
+        var dayTwoPasses = new[]
+        {
+            new DateTime(2013, 3, 19, 7, 0, 0),
+            new DateTime(2013, 3, 19, 8, 30, 0),
+        };
+
+        Assert.Equal(86, _calculator.GetTollFee(vehicle, dayOnePasses.Concat(dayTwoPasses).ToArray()));
+    }
+
+    [Fact]
+    public void GetTollFee_ResetsRollingWindow_OnNewCalendarDay()
+    {
+        var vehicle = new Car();
+        var dates = new[]
+        {
+            new DateTime(2013, 3, 18, 23, 30, 0),
+            new DateTime(2013, 3, 19, 0, 15, 0),
+        };
+
+        Assert.Equal(0, _calculator.GetTollFee(vehicle, dates));
+    }
+
+    [Fact]
     public void GetTollFee_SortsUnorderedPasses_BeforeCalculating()
     {
         var vehicle = new Car();

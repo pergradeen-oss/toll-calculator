@@ -40,29 +40,34 @@ C#/
 
 ## Affärsregler
 
-| Regel | Implementation |
-|-------|----------------|
-| Avgift 8–18 SEK beroende på tid | `TollFeePolicy` med deklarativ tariff |
-| Max 60 SEK per dag | `TollCalculator.DailyMaximumFee` |
-| En avgift per 60-minutersfönster | Gruppering med korrekt tidsdiff och omstart av intervall |
-| Högsta avgift inom samma fönster | `Math.Max` per intervall |
-| Avgiftsfria fordon | `VehicleExemptionPolicy` |
-| Helger och helgdagar avgiftsfria | `SwedishHolidayCalendar` |
+
+| Regel                                     | Implementation                                   |
+| ----------------------------------------- | ------------------------------------------------ |
+| Avgift 8–18 SEK beroende på tid           | `TollFeePolicy` med deklarativ tariff            |
+| Max 60 SEK per kalenderdag                | Separat tak per datum, nollställs vid ny dag     |
+| En avgift per rullande 60-minutersfönster | Gruppering med tidsdiff och omstart av intervall |
+| Tider avrundas till hela sekunder         | Millisekunder trunkeras i `TollFeePolicy`        |
+| Högsta avgift inom samma fönster          | `Math.Max` per intervall                         |
+| Avgiftsfria fordon                        | `VehicleExemptionPolicy`                         |
+| Helger och helgdagar avgiftsfria          | `SwedishHolidayCalendar`                         |
+
 
 ### Tariff (vardagar)
 
-| Tid | Avgift (SEK) |
-|-----|--------------|
-| 06:00–06:29 | 8 |
-| 06:30–06:59 | 13 |
-| 07:00–07:59 | 18 |
-| 08:00–08:29 | 13 |
-| 08:30–14:59 | 8 |
-| 15:00–15:29 | 13 |
-| 15:30–16:59 | 18 |
-| 17:00–17:59 | 13 |
-| 18:00–18:29 | 8 |
-| Övrig tid | 0 |
+
+| Tid         | Avgift (SEK) |
+| ----------- | ------------ |
+| 06:00–06:29 | 8            |
+| 06:30–06:59 | 13           |
+| 07:00–07:59 | 18           |
+| 08:00–08:29 | 13           |
+| 08:30–14:59 | 8            |
+| 15:00–15:29 | 13           |
+| 15:30–16:59 | 18           |
+| 17:00–17:59 | 13           |
+| 18:00–18:29 | 8            |
+| Övrig tid   | 0            |
+
 
 ### Avgiftsfria fordon
 
@@ -91,10 +96,10 @@ var totalFee = calculator.GetTollFee(car, passes); // 26 SEK
 
 Lösningen är uppdelad i små, testbara komponenter:
 
-- **`ITollFeePolicy`** — tariff per tidpunkt
-- **`IVehicleExemptionPolicy`** — undantag per fordonstyp
-- **`IHolidayCalendar`** — helger och helgdagar
-- **`TollCalculator`** — orkestrerar dagsberäkningen
+- `**ITollFeePolicy**` — tariff per tidpunkt
+- `**IVehicleExemptionPolicy**` — undantag per fordonstyp
+- `**IHolidayCalendar**` — helger och helgdagar
+- `**TollCalculator**` — orkestrerar dagsberäkningen
 
 Policies kan injiceras för testning och framtida regeländringar utan att ändra kärnlogiken.
 
@@ -104,7 +109,8 @@ Testsviten täcker:
 
 - Alla tariffzoner inklusive tidigare buggiga intervall (t.ex. 09:00–09:29)
 - Timfönster och högsta avgift inom intervall
-- Dagstak på 60 SEK
+- Dagstak på 60 SEK per kalenderdag (även vid passager över flera dagar)
+- Avrundning av tider till hela sekunder i tariffen
 - Avgiftsfria fordon och helgdagar
 - Att hela juli inte är avgiftsfritt (tidigare bugg)
 - Tom array, null-validering och osorterade passager
@@ -127,4 +133,4 @@ dotnet test --verbosity normal
 
 ## Bonus
 
-Gifen i det ursprungliga README:t kommer från *Lost in Space* — ”Danger, Will Robinson!”
+Gifen i det ursprungliga README:t kommer från filmen *Hackers* (1995).

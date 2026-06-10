@@ -17,7 +17,7 @@ public sealed class TollFeePolicy : ITollFeePolicy
 
     public int GetFee(DateTime date)
     {
-        var time = date.TimeOfDay;
+        var time = TruncateToWholeSeconds(date.TimeOfDay);
 
         foreach (var (from, to, fee) in _tariff)
         {
@@ -27,4 +27,7 @@ public sealed class TollFeePolicy : ITollFeePolicy
 
         return 0;
     }
+
+    private static TimeSpan TruncateToWholeSeconds(TimeSpan time) =>
+        TimeSpan.FromSeconds((long)time.TotalSeconds);
 }

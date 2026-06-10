@@ -37,6 +37,22 @@ public class TollFeePolicyTests
         Assert.Equal(expectedFee, _policy.GetFee(date));
     }
 
+    [Fact]
+    public void GetFee_TruncatesMilliseconds_ToWholeSeconds()
+    {
+        var date = new DateTime(2013, 3, 18, 6, 29, 59, 750);
+
+        Assert.Equal(8, _policy.GetFee(date));
+    }
+
+    [Fact]
+    public void GetFee_TruncatesMilliseconds_BeforeApplyingNextTariffSlot()
+    {
+        var date = new DateTime(2013, 3, 18, 6, 30, 0, 250);
+
+        Assert.Equal(13, _policy.GetFee(date));
+    }
+
     [Theory]
     [InlineData(5, 59)]
     [InlineData(18, 30)]

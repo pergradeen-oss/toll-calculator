@@ -39,31 +39,10 @@ public sealed class TollCalculator
         if (_vehicleExemptionPolicy.IsExempt(vehicle))
             return 0;
 
-        var sortedDates = dates.OrderBy(d => d).ToArray();
-        var totalFee = 0;
-        var intervalStart = sortedDates[0];
-        var maxFeeInInterval = GetTollFee(intervalStart, vehicle);
-
-        for (var i = 1; i < sortedDates.Length; i++)
-        {
-            var date = sortedDates[i];
-            var minutes = (date - intervalStart).TotalMinutes;
-            var fee = GetTollFee(date, vehicle);
-
-            if (minutes <= HourlyWindowMinutes)
-            {
-                maxFeeInInterval = Math.Max(maxFeeInInterval, fee);
-            }
-            else
-            {
-                totalFee += maxFeeInInterval;
-                intervalStart = date;
-                maxFeeInInterval = fee;
-            }
-        }
-
-        totalFee += maxFeeInInterval;
-        return Math.Min(totalFee, DailyMaximumFee);
+        return dates
+            .GroupBy(date => date.Date)
+            .OrderBy(group => group.Key)
+            .Sum(group => CalculateDailyFee(vehicle, group.OrderBy(date => date).ToArray()));
     }
 
     public int GetTollFee(DateTime date, IVehicle vehicle)
@@ -74,5 +53,33 @@ public sealed class TollCalculator
             return 0;
 
         return _tollFeePolicy.GetFee(date);
+    }
+
+    private int CalculateDailyFee(IVehicle vehicle, DateTime[] dayDates)
+    {
+        var intervalStart = dayDates[0];
+        var maxFeeInInterval = GetTollFee(intervalStart, vehicle);
+        var dailyFee = 0;
+
+        for (var i = 1; i < dayDates.Length; i++)
+        {
+            var date = dayDates[i];
+            var minutes = (date - intervalStart).TotalMinutes;
+            var fee = GetTollFee(date, vehicle);
+
+            if (minutes <= HourlyWindowMinutes)
+            {
+                maxFeeInInterval = Math.Max(maxFeeInInterval, fee);
+            }
+            else
+            {
+                dailyFee += maxFeeInInterval;
+                intervalStart = date;
+                maxFeeInInterval = fee;
+            }
+        }
+
+        dailyFee += maxFeeInInterval;
+        return Math.Min(dailyFee, DailyMaximumFee);
     }
 }
